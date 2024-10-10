@@ -1,0 +1,222 @@
+apiVersion: install.istio.io/v1alpha1
+kind: IstioOperator
+metadata:
+  namespace: istio-system
+  name: multiple-ingress-istiocontrolplane
+spec:
+  profile: default
+  meshConfig:
+    accessLogEncoding: JSON
+    accessLogFile: /dev/stdout
+    outboundTrafficPolicy:
+      mode: ALLOW_ANY
+    # defaultConfig:
+    #   gatewayTopology:
+    #     # Retains client source IP for TCP traffic
+    #     # https://istio.io/latest/docs/ops/configuration/traffic-management/network-topologies/#proxy-protocol
+    #     proxyProtocol: {}
+    extensionProviders:
+      - name: otel
+        envoyOtelAls:
+          service: otel-collector.observability.svc.cluster.local
+          port: 4317
+        opentelemetry:
+          service: otel-collector.observability.svc.cluster.local
+          port: 4317
+          resource_detectors:
+            environment: {}
+    defaultProviders:
+      accessLogging:
+        - envoy
+        - otel
+      metrics:
+        - prometheus
+      tracing:
+        - otel
+  values:
+    pilot:
+      cpu:
+        targetAverageUtilization: 80
+    sidecarInjectorWebhook:
+      rewriteAppHTTPProbe: false
+    global:
+      autoscalingv2API: true
+      proxy:
+        privileged: true
+        resources:
+          requests:
+            cpu: 10m
+            memory: 70Mi
+          limits:
+            cpu: null # Not working, it is still setting it to 2
+            memory: 120Mi
+  components:
+    pilot:
+      k8s:
+        resources:
+          requests:
+            memory: 300Mi
+            cpu: 100m
+    ingressGateways:
+      - name: istio-internal-ingressgateway
+        enabled: true
+        k8s:
+          service:
+            ports:
+              - name: status-port
+                port: 15021
+                protocol: TCP
+                targetPort: 15021
+              - name: http2
+                port: 80
+                protocol: TCP
+                targetPort: 8080
+              - name: https
+                port: 443
+                protocol: TCP
+                targetPort: 8443
+              - name: grpc
+                port: 15443
+                protocol: TCP
+                targetPort: 15443
+              - name: grpc-otlp
+                appProtocol: grpc
+                port: 4317
+                protocol: TCP
+                targetPort: 4317
+          serviceAnnotations:
+            service.beta.kubernetes.io/aws-load-balancer-type: nlb
+            service.beta.kubernetes.io/aws-load-balancer-internal: "true"
+          hpaSpec:
+            maxReplicas: 4
+            metrics:
+              # - resource:
+              #     name: cpu
+              #     targetAverageUtilization: 80
+              #   type: Resource
+              - type: Resource
+                resource:
+                  name: cpu
+                  target:
+                    type: Utilization
+                    averageUtilization: 80
+            minReplicas: 2
+            scaleTargetRef:
+              apiVersion: apps/v1
+              kind: Deployment
+              name: istio-internal-ingressgateway
+          resources:
+            limits:
+              cpu: 4000m
+              memory: 1024Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+          strategy:
+            rollingUpdate:
+              maxSurge: 100%
+              maxUnavailable: 25%
+          overlays:
+            - kind: HorizontalPodAutoscaler
+              name: istio-internal-ingressgateway
+              patches:
+                - path: metadata.labels.app
+                  value: istio-internal-ingressgateway
+                - path: metadata.labels.istio
+                  value: internal-ingressgateway
+                - path: spec.scaleTargetRef.name
+                  value: istio-internal-ingressgateway
+            - kind: Deployment
+              name: istio-internal-ingressgateway
+              patches:
+                - path: metadata.labels.app
+                  value: istio-internal-ingressgateway
+                - path: metadata.labels.istio
+                  value: internal-ingressgateway
+                - path: spec.selector.matchLabels.app
+                  value: istio-internal-ingressgateway
+                - path: spec.selector.matchLabels.istio
+                  value: internal-ingressgateway
+                - path: spec.template.metadata.labels.app
+                  value: istio-internal-ingressgateway
+                - path: spec.template.metadata.labels.istio
+                  value: internal-ingressgateway
+            - kind: Service
+              name: istio-internal-ingressgateway
+              patches:
+                - path: metadata.labels.app
+                  value: istio-internal-ingressgateway
+                - path: metadata.labels.istio
+                  value: internal-ingressgateway
+                - path: spec.selector.app
+                  value: istio-internal-ingressgateway
+                - path: spec.selector.istio
+                  value: internal-ingressgateway
+                - path: spec.externalTrafficPolicy
+                  value: Local
+      - name: istio-ingressgateway
+        enabled: true
+        k8s:
+          service:
+            ports:
+              - name: status-port
+                port: 15021
+                protocol: TCP
+                targetPort: 15021
+              - name: http2
+                port: 80
+                protocol: TCP
+                targetPort: 8080
+              - name: https
+                port: 443
+                protocol: TCP
+                targetPort: 8443
+              - name: grpc
+                port: 15443
+                protocol: TCP
+                targetPort: 15443
+              - name: smtp
+                port: 25
+                protocol: TCP
+                targetPort: 8025
+              - name: smtps
+                port: 587
+                protocol: TCP
+                targetPort: 8587
+          serviceAnnotations:
+            service.beta.kubernetes.io/aws-load-balancer-type: nlb
+          hpaSpec:
+            maxReplicas: 4
+            metrics:
+              # - resource:
+              #     name: cpu
+              #     targetAverageUtilization: 80
+              #   type: Resource
+              - type: Resource
+                resource:
+                  name: cpu
+                  target:
+                    type: Utilization
+                    averageUtilization: 80
+            minReplicas: 2
+            scaleTargetRef:
+              apiVersion: apps/v1
+              kind: Deployment
+              name: istio-ingressgateway
+          resources:
+            limits:
+              cpu: 4000m
+              memory: 1024Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+          strategy:
+            rollingUpdate:
+              maxSurge: 100%
+              maxUnavailable: 25%
+          overlays:
+            - kind: Service
+              name: istio-ingressgateway
+              patches:
+                - path: spec.externalTrafficPolicy
+                  value: Local

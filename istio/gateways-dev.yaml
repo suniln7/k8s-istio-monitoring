@@ -1,0 +1,41 @@
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: ingressgateway
+  namespace: istio-system
+  annotations:
+    "proxy.istio.io/config": '{"gatewayTopology" : { "numTrustedProxies": 2}'
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+    - hosts:
+        - "*"
+      port:
+        name: http
+        number: 80
+        protocol: HTTP
+      tls:
+        httpsRedirect: true
+    
+---
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: internal-ingressgateway
+  namespace: istio-system
+  annotations:
+    "proxy.istio.io/config": '{"gatewayTopology" : { "numTrustedProxies": 2}'
+spec:
+  selector:
+    istio: internal-ingressgateway
+  servers:
+    - hosts:
+        - "*"
+      port:
+        name: http
+        number: 80
+        protocol: HTTP
+      tls:
+        httpsRedirect: true
+    
