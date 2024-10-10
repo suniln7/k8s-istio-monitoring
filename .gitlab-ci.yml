@@ -37,9 +37,9 @@ deploy-istio-dev:
     - cd kps
   script:
     - kubectl config use-context $KUBE_CONTEXT
-    - helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-    - helm repo update
-    - helm upgrade --install -f chart-override.$ENV.yaml monitoring prometheus-community/kube-prometheus-stack --debug -n monitoring --create-namespace --version 58.0.0 --wait
+    #- helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+    #- helm repo update
+    #- helm upgrade --install -f chart-override.$ENV.yaml monitoring prometheus-community/kube-prometheus-stack --debug -n monitoring --create-namespace --version 58.0.0 --wait
     - cd ./virtualservices
     - kubectl apply -R -f '*-$ENV.yaml' --wait=true
   
