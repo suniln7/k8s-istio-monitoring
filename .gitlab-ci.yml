@@ -6,7 +6,7 @@ deploy-istio:
   variables:
     KUBE_CONTEXT: devops8121703/k8s-connection:k8s-connection
   image:
-    name: $CI_REGISTRY/devops8121703/k8s-istio-monitoring/istioctl-kubectl
+    name: $CI_REGISTRY/devops8121703/k8s-istio-monitoring/istioctl-kubectl:v1
     entrypoint: [""]
   
   script:
