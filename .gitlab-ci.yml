@@ -41,7 +41,7 @@ deploy-istio-dev:
     #- helm repo update
     #- helm upgrade --install -f chart-override.$ENV.yaml monitoring prometheus-community/kube-prometheus-stack --debug -n monitoring --create-namespace --version 58.0.0 --wait
     - cd ./virtualservices
-    - kubectl apply -R -f '*-$ENV.yaml' --wait=true
+    - kubectl apply -R -f *-$ENV.yaml --wait=true
   
 deploy-kps-dev:
   extends: .deploy-prometheus-template
