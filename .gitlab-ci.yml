@@ -1,0 +1,16 @@
+stages:
+ - deploy
+
+deploy-prometheus:
+  variables:
+    KUBE_CONTEXT: devops8121703/k8s-connection:k8s-connection
+  stage: deploy
+  image: 
+    name: dtzar/helm-kubectl
+    entrypoint: [""]
+  script:
+    - kubectl config use-context $KUBE_CONTEXT
+    - helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+    - helm repo update
+    - helm upgrade --install monitoring prometheus-community/kube-prometheus-stack -n monitoring --create-namespace 
+  when: manual
