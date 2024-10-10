@@ -28,7 +28,7 @@ stages:
     #- helm repo update
     #- helm upgrade --install -f chart-override.$ENV.yaml monitoring prometheus-community/kube-prometheus-stack --debug -n monitoring --create-namespace --version 58.0.0 --timeout 5m
     - cd ./virtualservices
-    - kubectl apply -f $(ls *.$ENV.yaml)
+    - kubectl apply -R -f . *-$ENV.yaml
   
 deploy-kps-dev:
   extends: .deploy-prometheus-template
