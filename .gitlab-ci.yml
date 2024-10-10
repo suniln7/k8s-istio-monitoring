@@ -6,15 +6,9 @@ deploy-istio:
   variables:
     KUBE_CONTEXT: devops8121703/k8s-connection:k8s-connection
   image:
-    name: istio/istioctl:1.22.0
+    name: $CI_REGISTRY/devops8121703/k8s-istio-monitoring/istioctl-kubectl
     entrypoint: [""]
-  before_script:
-    - mkdir -p $HOME/bin
-    - curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-    - chmod +x kubectl
-    - mv kubectl $HOME/bin/
-    - export PATH=$PATH:$HOME/bin
-
+  
   script:
     - kubectl config use-context $KUBE_CONTEXT
     - istioctl install --set profile=default -y
