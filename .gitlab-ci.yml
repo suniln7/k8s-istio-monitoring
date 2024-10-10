@@ -3,10 +3,13 @@ stages:
 
 deploy-istio:
   stage: deploy
+  variables:
+    KUBE_CONTEXT: devops8121703/k8s-connection:k8s-connection
   image:
     name: istio/istioctl:1.22.0
     entrypoint: [""]
   script:
+    - kubectl config use-context $KUBE_CONTEXT
     - istioctl install --set profile=default -y
 
 .deploy-prometheus:
