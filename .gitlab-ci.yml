@@ -6,7 +6,7 @@ deploy-prometheus:
     KUBE_CONTEXT: devops8121703/k8s-connection:k8s-connection
   stage: deploy
   image: 
-    name: dtzar/helm-kubectl
+    name: $HELM
     entrypoint: [""]
   script:
     - kubectl config use-context $KUBE_CONTEXT
