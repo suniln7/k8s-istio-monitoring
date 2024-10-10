@@ -1,0 +1,20 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: prometheus
+  namespace: monitoring
+spec:
+  hosts:
+    - *
+  gateways:
+    - istio-system/ingressgateway
+  http:
+    - name: prometheus
+      match:
+        - uri:
+            prefix: "/prometheus"
+      route:
+      - destination:
+          host: monitoring-kube-prometheus-prometheus
+          port:
+            number: 9090

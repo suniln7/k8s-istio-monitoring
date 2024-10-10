@@ -1,0 +1,20 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: grafana
+  namespace: monitoring
+spec:
+  hosts:
+    - *
+  gateways:
+    - istio-system/ingressgateway
+  http:
+    - name: grafana
+      match:
+        - uri:
+            prefix: "/grafana"
+      route:
+      - destination:
+          host: monitoring-grafana
+          port:
+            number: 80

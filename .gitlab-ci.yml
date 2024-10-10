@@ -1,7 +1,7 @@
 stages:
  - deploy
 
-deploy-istio:
+.deploy-istio:
   stage: deploy
   variables:
     KUBE_CONTEXT: devops8121703/k8s-connection:k8s-connection
@@ -13,16 +13,28 @@ deploy-istio:
     - kubectl config use-context $KUBE_CONTEXT
     - istioctl install --set profile=default -y
 
-.deploy-prometheus:
+.deploy-prometheus-template: &deploy-prometheus-template
   variables:
     KUBE_CONTEXT: devops8121703/k8s-connection:k8s-connection
   stage: deploy
   image: 
     name: dtzar/helm-kubectl
     entrypoint: [""]
+  before_script: 
+    - cd kps
   script:
     - kubectl config use-context $KUBE_CONTEXT
     - helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
     - helm repo update
-    - helm upgrade --install  monitoring prometheus-community/kube-prometheus-stack --debug -n monitoring --create-namespace --version 58.0.0 --timeout 5m
-  when: always
+    - helm upgrade --install -f chart-override.$ENV.yaml monitoring prometheus-community/kube-prometheus-stack --debug -n monitoring --create-namespace --version 58.0.0 --timeout 5m
+    - cd ./virtualservices
+    - kubectl apply -f *.$ENV.yaml
+  
+deploy-kps-dev:
+  extends: .deploy-prometheus-template
+  variables:
+    KUBE_CONTEXT: devops8121703/k8s-connection:k8s-connection
+    ENV: dev
+  only:
+    refs:
+      - dev

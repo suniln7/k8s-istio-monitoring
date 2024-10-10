@@ -1,0 +1,30 @@
+alertmanager:
+  alertmanagerSpec:
+    retention: 1440h #60 days - alertmanager max supported unit is hours 'h'
+    routePrefix: "/alertmanager"
+    
+
+prometheus:
+  prometheusSpec:
+    retention: 1y
+    retentionSize: "1GB" 
+    
+
+prometheusOperator:
+  prometheusConfigReloader:
+    resources:
+      limits:
+        cpu: 250m
+
+grafana:
+  assertNoLeakedSecrets: false
+  grafana.ini:
+    auth:
+      disable_login_form: false
+    
+
+kubeScheduler:
+  enabled: false
+
+kubeControllerManager:
+  enabled: false
