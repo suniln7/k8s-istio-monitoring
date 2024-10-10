@@ -4,7 +4,7 @@ stages:
 deploy-istio:
   stage: deploy
   image:
-    name: istio/istioctl
+    name: istio/istioctl:1.22.0
     entrypoint: [""]
   script:
     istioctl install --set profile=default -y
