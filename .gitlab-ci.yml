@@ -14,6 +14,7 @@ stages:
     - kubectl config use-context $KUBE_CONTEXT
     - istioctl upgrade -f ingress-overlay-$ENV.yaml --set profile=default -y
   after_script:
+    - cd ./istio
     - kubectl config use-context $KUBE_CONTEXT
     - kubectl apply -R -f gateways-$ENV.yaml --wait=true
     - kubectl apply -f prometheus.yaml --wait=true
@@ -40,7 +41,7 @@ deploy-istio-dev:
     - kubectl config use-context $KUBE_CONTEXT
     - helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
     - helm repo update
-    - helm upgrade --install -f chart-override.$ENV.yaml monitoring prometheus-community/kube-prometheus-stack --debug -n monitoring --create-namespace --version 58.0.0 --timeout 5m
+    - helm upgrade --install -f chart-override.$ENV.yaml monitoring prometheus-community/kube-prometheus-stack --debug -n monitoring --create-namespace --version 58.0.0 --wait
     - cd ./virtualservices
     - kubectl apply -R -f *-$ENV.yaml
   
