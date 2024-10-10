@@ -13,6 +13,9 @@ stages:
   script:
     - kubectl config use-context $KUBE_CONTEXT
     - istioctl upgrade -f ingress-overlay-$ENV.yaml --set profile=default -y
+  after_script:
+    - kubectl apply -R -f gateways-$ENV.yaml --wait=true
+    - kubectl apply -f prometheus.yaml --wait=true
 
 deploy-istio-dev:
   extends: .deploy-istio-template
