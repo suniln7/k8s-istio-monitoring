@@ -12,5 +12,5 @@ deploy-prometheus:
     - kubectl config use-context $KUBE_CONTEXT
     - helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
     - helm repo update
-    - helm upgrade --install monitoring prometheus-community/kube-prometheus-stack -n monitoring --create-namespace 
+    - helm upgrade --install  monitoring prometheus-community/kube-prometheus-stack --debug -n monitoring --create-namespace --version 58.0.0 
   when: manual
