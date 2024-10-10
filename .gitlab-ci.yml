@@ -12,7 +12,7 @@ stages:
     - cd ./istio
   script:
     - kubectl config use-context $KUBE_CONTEXT
-    - istioctl upgrade --install -f ingress-overlay-$ENV.yaml --set profile=default -y
+    - istioctl upgrade -f ingress-overlay-$ENV.yaml --set profile=default -y
 
 deploy-istio-dev:
   extends: .deploy-istio-template
