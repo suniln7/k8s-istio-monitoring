@@ -15,6 +15,7 @@ stages:
     - istioctl upgrade --install -f ingress-overlay-$ENV.yaml --set profile=default -y
 
 deploy-istio-dev:
+  extends: .deploy-istio-template
   variables:
     KUBE_CONTEXT: devops8121703/k8s-connection:k8s-connection
     ENV: dev
