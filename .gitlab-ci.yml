@@ -51,3 +51,5 @@ deploy-kps-dev:
   only:
     refs:
       - dev
+  needs: 
+    - deploy-istio-dev
