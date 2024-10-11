@@ -2,15 +2,14 @@ stages:
  - test
  - deploy
 
-test-job:
+test:
+  stage: test
   script:
-    - echo $CI_PROJECT_NAMESPACE
-    - echo $CI_REPOSITORY_URL
-
+    echo $CI_PROJECT_TITLE
 .deploy-istio-template: &deploy-istio-template
   stage: deploy
   image:
-    name: $CI_REGISTRY/devops8121703/k8s-istio-monitoring/istioctl-kubectl:v1
+    name: $CI_REGISTRY/$CI_PROJECT_NAMESPACE/k8s-istio-monitoring/istioctl-kubectl:v1
     entrypoint: [""]
   before_script: 
     - cd ./istio
@@ -26,7 +25,7 @@ test-job:
 .deploy-istio-dev:
   extends: .deploy-istio-template
   variables:
-    KUBE_CONTEXT: devops8121703/k8s-connection:k8s-connection
+    KUBE_CONTEXT: $CI_PROJECT_NAMESPACE/k8s-connection:k8s-connection
     ENV: dev
   only:
     refs:
@@ -34,7 +33,7 @@ test-job:
 
 .deploy-prometheus-template: &deploy-prometheus-template
   variables:
-    KUBE_CONTEXT: devops8121703/k8s-connection:k8s-connection
+    KUBE_CONTEXT: $CI_PROJECT_NAMESPACE/k8s-connection:k8s-connection
   stage: deploy
   image: 
     name: dtzar/helm-kubectl
@@ -52,7 +51,7 @@ test-job:
 .deploy-kps-dev:
   extends: .deploy-prometheus-template
   variables:
-    KUBE_CONTEXT: devops8121703/k8s-connection:k8s-connection
+    KUBE_CONTEXT: $CI_PROJECT_NAMESPACE/k8s-connection:k8s-connection
     ENV: dev
   only:
     refs:
