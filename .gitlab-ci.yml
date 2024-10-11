@@ -6,10 +6,11 @@ test:
   stage: test
   script:
     echo $CI_PROJECT_TITLE
+    echo $CI_PROJECT_PATH
 .deploy-istio-template: &deploy-istio-template
   stage: deploy
   image:
-    name: $CI_REGISTRY/$CI_PROJECT_NAMESPACE/k8s-istio-monitoring/istioctl-kubectl:v1
+    name: $CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_TITLE/istioctl-kubectl:v1
     entrypoint: [""]
   before_script: 
     - cd ./istio
