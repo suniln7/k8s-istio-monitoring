@@ -2,15 +2,16 @@ stages:
  - test
  - deploy
 
-test:
+.test:
   stage: test
   script:
     echo $CI_PROJECT_TITLE
     echo $CI_PROJECT_PATH
+
 .deploy-istio-template: &deploy-istio-template
   stage: deploy
   image:
-    name: $CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_TITLE/istioctl-kubectl:v1
+    name: $CI_REGISTRY/$CI_PROJECT_PATH/istioctl-kubectl:v1
     entrypoint: [""]
   before_script: 
     - cd ./istio
@@ -23,7 +24,7 @@ test:
     - kubectl apply -R -f gateways-$ENV.yaml --wait=true
     - kubectl apply -f prometheus.yaml --wait=true
 
-.deploy-istio-dev:
+deploy-istio-dev:
   extends: .deploy-istio-template
   variables:
     KUBE_CONTEXT: $CI_PROJECT_NAMESPACE/k8s-connection:k8s-connection
@@ -49,7 +50,7 @@ test:
     - cd ./virtualservices
     - for file in *-$ENV.yaml; do kubectl apply -f "$file" --wait=true; done
   
-.deploy-kps-dev:
+deploy-kps-dev:
   extends: .deploy-prometheus-template
   variables:
     KUBE_CONTEXT: $CI_PROJECT_NAMESPACE/k8s-connection:k8s-connection
